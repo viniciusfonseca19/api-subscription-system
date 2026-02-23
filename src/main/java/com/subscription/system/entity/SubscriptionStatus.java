@@ -1,4 +1,7 @@
 package com.subscription.system.entity;
 
-public class SubscriptionStatus {
+public enum SubscriptionStatus {
+    ATIVA,
+    CANCELADA,
+    EXPIRADA
 }
