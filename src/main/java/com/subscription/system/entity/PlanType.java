@@ -1,4 +1,7 @@
 package com.subscription.system.entity;
 
-public class PlanType {
+public enum PlanType {
+    FREE,
+    PRO,
+    PREMIUM
 }
