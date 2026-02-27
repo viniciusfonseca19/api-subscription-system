@@ -1,17 +1,10 @@
 package com.subscription.system.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "subscriptions")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Subscription {
 
     @Id
@@ -19,16 +12,38 @@ public class Subscription {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private PlanType plan;
+    @Column(nullable = false)
+    private PlanType planType;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private SubscriptionStatus status;
 
+    @Column(nullable = false)
     private LocalDateTime startDate;
+
+    @Column(nullable = false)
     private LocalDateTime expirationDate;
-    private LocalDateTime canceledAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public boolean isActive() {
+        return this.status == SubscriptionStatus.ACTIVE;
+    }
+
+    public void cancel() {
+        this.status = SubscriptionStatus.CANCELED;
+    }
+
+    public void expire() {
+        this.status = SubscriptionStatus.EXPIRED;
+    }
+
+    public void activate() {
+        this.status = SubscriptionStatus.ACTIVE;
+    }
+
+    // getters e setters
 }

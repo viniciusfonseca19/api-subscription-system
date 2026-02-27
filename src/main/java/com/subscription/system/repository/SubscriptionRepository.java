@@ -1,17 +1,21 @@
 package com.subscription.system.repository;
 
-import com.subscription.system.entity.*;
+import com.subscription.system.entity.Subscription;
+import com.subscription.system.entity.SubscriptionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.List;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
-    boolean existsByUserAndStatus(User user, SubscriptionStatus status);
+    Optional<Subscription> findByUserIdAndStatus(Long userId, SubscriptionStatus status);
 
     List<Subscription> findByStatusAndExpirationDateBefore(
             SubscriptionStatus status,
-            LocalDateTime date
+            LocalDateTime dateTime
     );
+
+    List<Subscription> findByUserId(Long userId);
 }
