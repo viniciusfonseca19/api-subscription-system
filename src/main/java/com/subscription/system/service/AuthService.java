@@ -8,6 +8,7 @@ import com.subscription.system.exception.BusinessException;
 import com.subscription.system.exception.UnauthorizedException;
 import com.subscription.system.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final SubscriptionService subscriptionService;
 
     public AuthService(UserRepository userRepository,
