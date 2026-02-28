@@ -7,7 +7,6 @@ import com.subscription.system.entity.User;
 import com.subscription.system.exception.BusinessException;
 import com.subscription.system.exception.UnauthorizedException;
 import com.subscription.system.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +19,7 @@ public class AuthService {
     private final SubscriptionService subscriptionService;
 
     public AuthService(UserRepository userRepository,
-                       BCryptPasswordEncoder passwordEncoder,
+                       PasswordEncoder passwordEncoder,
                        SubscriptionService subscriptionService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -39,10 +38,9 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        //   salva usuário
         User savedUser = userRepository.save(user);
 
-        //  cria assinatura FREE automaticamente
+        // cria assinatura FREE automaticamente
         subscriptionService.createSubscription(savedUser.getId(), "FREE");
 
         return new AuthResponse(
