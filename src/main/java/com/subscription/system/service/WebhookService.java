@@ -37,9 +37,7 @@ public class WebhookService {
 
             case "RENEWAL":
             case "PAYMENT_SUCCESS":
-                active.setExpirationDate(
-                        active.getExpirationDate().plusMonths(1)
-                );
+                active.renew(1);
                 break;
 
             default:

@@ -23,7 +23,33 @@ public class Subscription {
 
     private LocalDateTime endDate;
 
-    // ===== GETTERS E SETTERS =====
+    private LocalDateTime expirationDate;
+
+// ========================
+// REGRAS DE NEGÓCIO
+// ========================
+
+    public void cancel() {
+        this.status = SubscriptionStatus.CANCELLED;
+        this.endDate = LocalDateTime.now();
+    }
+
+    public void renew(int months) {
+        if (this.expirationDate == null) {
+            this.expirationDate = LocalDateTime.now().plusMonths(months);
+        } else {
+            this.expirationDate = this.expirationDate.plusMonths(months);
+        }
+    }
+
+    public void expire() {
+        this.status = SubscriptionStatus.EXPIRED;
+        this.endDate = LocalDateTime.now();
+    }
+
+    // ========================
+    // GETTERS E SETTERS
+    // ========================
 
     public Long getId() {
         return id;
@@ -67,5 +93,13 @@ public class Subscription {
 
     public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
+    }
+
+    public LocalDateTime getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(LocalDateTime expirationDate) {
+        this.expirationDate = expirationDate;
     }
 }
