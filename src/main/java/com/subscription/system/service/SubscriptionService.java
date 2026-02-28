@@ -1,83 +1,74 @@
 package com.subscription.system.service;
 
-import com.subscription.system.entity.Subscription;
-import com.subscription.system.entity.SubscriptionStatus;
+import com.subscription.system.entity.*;
 import com.subscription.system.repository.SubscriptionRepository;
+import com.subscription.system.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+@Service
+public class SubscriptionService {
 
-    @Service
-    public class SubscriptionService {
+    private final SubscriptionRepository subscriptionRepository;
+    private final UserRepository userRepository;
 
-        private final SubscriptionRepository subscriptionRepository;
+    public SubscriptionService(SubscriptionRepository subscriptionRepository,
+                               UserRepository userRepository) {
+        this.subscriptionRepository = subscriptionRepository;
+        this.userRepository = userRepository;
+    }
 
-        public SubscriptionService(SubscriptionRepository subscriptionRepository) {
-            this.subscriptionRepository = subscriptionRepository;
-        }
+    // =========================
+    // CREATE
+    // =========================
+    @Transactional
+    public Subscription createSubscription(Long userId, String plan) {
 
-        /**
-         * Cria uma nova assinatura.
-         * Só permite se o usuário não tiver uma ACTIVE.
-         */
-        @Transactional
-        public Subscription createSubscription(Long userId, String plan) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
 
-            Optional<Subscription> activeSubscription =
-                    subscriptionRepository.findByUserIdAndStatus(userId, SubscriptionStatus.ACTIVE);
+        subscriptionRepository.findByUserAndStatus(user, SubscriptionStatus.ACTIVE)
+                .ifPresent(sub -> {
+                    throw new IllegalStateException("User already has active subscription");
+                });
 
-            if (activeSubscription.isPresent()) {
-                throw new IllegalStateException("User already has an active subscription.");
-            }
+        Subscription subscription = new Subscription(user, plan);
 
-            Subscription subscription = new Subscription();
-            subscription.setUserId(userId);
-            subscription.setPlan(plan);
-            subscription.setStatus(SubscriptionStatus.ACTIVE);
-            subscription.setStartDate(LocalDateTime.now());
+        return subscriptionRepository.save(subscription);
+    }
 
-            return subscriptionRepository.save(subscription);
-        }
-
-    /**
-     * Cancela assinatura ativa
-     */
+    // =========================
+    // CANCEL
+    // =========================
     @Transactional
     public void cancelSubscription(Long userId) {
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
         Subscription subscription = subscriptionRepository
-                .findByUserIdAndStatus(userId, SubscriptionStatus.ACTIVE)
-                .orElseThrow(() -> new IllegalStateException("Active subscription not found."));
+                .findByUserAndStatus(user, SubscriptionStatus.ACTIVE)
+                .orElseThrow(() -> new IllegalStateException("Active subscription not found"));
 
-        subscription.setStatus(SubscriptionStatus.CANCELLED);
-        subscription.setEndDate(LocalDateTime.now());
-
-        subscriptionRepository.save(subscription);
+        subscription.cancel();
     }
 
-    /**
-     * Upgrade de plano (mantém histórico)
-     */
+    // =========================
+    // UPGRADE
+    // =========================
     @Transactional
     public Subscription upgradeSubscription(Long userId, String newPlan) {
 
-        Subscription currentSubscription = subscriptionRepository
-                .findByUserIdAndStatus(userId, SubscriptionStatus.ACTIVE)
-                .orElseThrow(() -> new IllegalStateException("Active subscription not found."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
 
-        // Finaliza assinatura atual
-        currentSubscription.setStatus(SubscriptionStatus.CANCELLED);
-        currentSubscription.setEndDate(LocalDateTime.now());
-        subscriptionRepository.save(currentSubscription);
+        Subscription current = subscriptionRepository
+                .findByUserAndStatus(user, SubscriptionStatus.ACTIVE)
+                .orElseThrow(() -> new IllegalStateException("Active subscription not found"));
 
-        // Cria nova assinatura
-        Subscription newSubscription = new Subscription();
-        newSubscription.setUserId(userId);
-        newSubscription.setPlan(newPlan);
-        newSubscription.setStatus(SubscriptionStatus.ACTIVE);
-        newSubscription.setStartDate(LocalDateTime.now());
+        current.cancel();
+
+        Subscription newSubscription = new Subscription(user, newPlan);
 
         return subscriptionRepository.save(newSubscription);
     }

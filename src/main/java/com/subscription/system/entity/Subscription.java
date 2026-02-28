@@ -11,17 +11,10 @@ public class Subscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ========================
-    // RELACIONAMENTO
-    // ========================
-
+    //  RELACIONAMENTO REAL
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    // ========================
-    // CAMPOS
-    // ========================
 
     @Column(nullable = false)
     private String plan;
@@ -37,12 +30,7 @@ public class Subscription {
 
     private LocalDateTime expirationDate;
 
-    // ========================
-    // CONSTRUTORES
-    // ========================
-
-    public Subscription() {
-    }
+    public Subscription() {}
 
     public Subscription(User user, String plan) {
         this.user = user;
@@ -52,21 +40,14 @@ public class Subscription {
         this.expirationDate = LocalDateTime.now().plusMonths(1);
     }
 
-    // ========================
-    // REGRAS DE NEGÓCIO
-    // ========================
-
+    //  Regras de negócio
     public void cancel() {
         this.status = SubscriptionStatus.CANCELLED;
         this.endDate = LocalDateTime.now();
     }
 
     public void renew(int months) {
-        if (this.expirationDate == null) {
-            this.expirationDate = LocalDateTime.now().plusMonths(months);
-        } else {
-            this.expirationDate = this.expirationDate.plusMonths(months);
-        }
+        this.expirationDate = this.expirationDate.plusMonths(months);
         this.status = SubscriptionStatus.ACTIVE;
     }
 
@@ -75,47 +56,10 @@ public class Subscription {
         this.endDate = LocalDateTime.now();
     }
 
-    // ========================
-    // GETTERS E SETTERS
-    // ========================
-
-    public Long getId() {
-        return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getPlan() {
-        return plan;
-    }
-
-    public void setPlan(String plan) {
-        this.plan = plan;
-    }
-
-    public SubscriptionStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(SubscriptionStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-
-    public LocalDateTime getExpirationDate() {
-        return expirationDate;
-    }
+    // getters e setter do user
+    public Long getId() { return id; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+    public String getPlan() { return plan; }
+    public SubscriptionStatus getStatus() { return status; }
 }
