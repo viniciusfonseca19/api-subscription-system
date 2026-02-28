@@ -42,7 +42,7 @@ public class AuthService {
         User savedUser = userRepository.save(user);
 
         //  cria assinatura FREE automaticamente
-        subscriptionService.createFreeSubscription(savedUser);
+        subscriptionService.createSubscription(savedUser.getId(), "FREE");
 
         return new AuthResponse(
                 savedUser.getId(),
