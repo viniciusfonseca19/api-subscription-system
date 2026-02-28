@@ -11,7 +11,7 @@ public class Subscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //  RELACIONAMENTO REAL
+    // Relacionamento
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -23,12 +23,14 @@ public class Subscription {
     @Column(nullable = false)
     private SubscriptionStatus status;
 
-    @Column(nullable = false)
+    @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
-    private LocalDateTime endDate;
-
+    @Column(name = "expiration_date")
     private LocalDateTime expirationDate;
+
+    @Column(name = "canceled_at")
+    private LocalDateTime canceledAt;
 
     public Subscription() {}
 
@@ -40,10 +42,11 @@ public class Subscription {
         this.expirationDate = LocalDateTime.now().plusMonths(1);
     }
 
-    //  Regras de negócio
+    // ========== REGRAS DE NEGÓCIO ==========
+
     public void cancel() {
         this.status = SubscriptionStatus.CANCELLED;
-        this.endDate = LocalDateTime.now();
+        this.canceledAt = LocalDateTime.now();
     }
 
     public void renew(int months) {
@@ -53,13 +56,24 @@ public class Subscription {
 
     public void expire() {
         this.status = SubscriptionStatus.EXPIRED;
-        this.endDate = LocalDateTime.now();
+        this.canceledAt = LocalDateTime.now();
     }
 
-    // getters e setter do user
+    // ========== GETTERS ==========
+
     public Long getId() { return id; }
+
     public User getUser() { return user; }
+
     public void setUser(User user) { this.user = user; }
+
     public String getPlan() { return plan; }
+
     public SubscriptionStatus getStatus() { return status; }
+
+    public LocalDateTime getStartDate() { return startDate; }
+
+    public LocalDateTime getExpirationDate() { return expirationDate; }
+
+    public LocalDateTime getCanceledAt() { return canceledAt; }
 }
