@@ -1,7 +1,6 @@
 package com.subscription.system.entity;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,22 +11,50 @@ public class Subscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    // ========================
+    // RELACIONAMENTO
+    // ========================
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    // ========================
+    // CAMPOS
+    // ========================
+
+    @Column(nullable = false)
     private String plan;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private SubscriptionStatus status;
 
+    @Column(nullable = false)
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;
 
     private LocalDateTime expirationDate;
 
-// ========================
-// REGRAS DE NEGÓCIO
-// ========================
+    // ========================
+    // CONSTRUTORES
+    // ========================
+
+    public Subscription() {
+    }
+
+    public Subscription(User user, String plan) {
+        this.user = user;
+        this.plan = plan;
+        this.status = SubscriptionStatus.ACTIVE;
+        this.startDate = LocalDateTime.now();
+        this.expirationDate = LocalDateTime.now().plusMonths(1);
+    }
+
+    // ========================
+    // REGRAS DE NEGÓCIO
+    // ========================
 
     public void cancel() {
         this.status = SubscriptionStatus.CANCELLED;
@@ -40,6 +67,7 @@ public class Subscription {
         } else {
             this.expirationDate = this.expirationDate.plusMonths(months);
         }
+        this.status = SubscriptionStatus.ACTIVE;
     }
 
     public void expire() {
@@ -55,12 +83,12 @@ public class Subscription {
         return id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getPlan() {
@@ -83,23 +111,11 @@ public class Subscription {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
-    }
-
     public LocalDateTime getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
-    }
-
     public LocalDateTime getExpirationDate() {
         return expirationDate;
-    }
-
-    public void setExpirationDate(LocalDateTime expirationDate) {
-        this.expirationDate = expirationDate;
     }
 }
